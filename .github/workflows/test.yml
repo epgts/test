@@ -21,15 +21,20 @@ jobs:
           # ourselves write access.  Simple chown won't work, as $RUNNER_TEMP
           # needs to remain writable by the github actions user as well, as it
           # writes 'event.json' files there for each step.
-          run: sudo chmod a+rwX . "$RUNNER_TEMP"
-        - name: cache
-          uses: actions/cache@v2
+          run: sudo chmod -R a+rwX . "$RUNNER_TEMP"
+        - name: Checkout Repository
+          uses: actions/checkout@v3
           with:
-              path: ./*
-              key: foo-8
-              restore-keys: foo-
+            ref: ${{ github.event.pull_request.head.sha }}
+            set-safe-directory: false
+        - name: cache
+          uses: actions/cache@v3
+          with:
+              path: target
+              key: foo-9
+              #restore-keys: foo-
         - name: ls after cache restore
-          run: for i in *; do ls -l $i; cat $i; done
+          run: pwd; ls -a; for i in *; do ls -l $i; cat $i; done
         - run: '[ -e stamp ] || date > stamp'
         - run: '[ -e stamp2 ] || date > stamp2'
         - run: find $RUNNER_TEMP -print0 | xargs -0 ls -dl
