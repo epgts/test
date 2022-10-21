@@ -13,6 +13,9 @@ jobs:
         steps:
         #- run: id; pwd; ls -al; env
         - name: make working and temporary directories world-readable/writable
+          # Now it always fails on cache restore even though earlier it didn't.
+          # WHY
+          # This guy having same problem?  https://github.com/cypress-io/github-action/issues/596
           # Github Actions bind-mounts some directories into our running
           # container and sets one of them as the working directory.  That's
           # where actions/checkout will clone and where we'll do all our work.
