@@ -5,14 +5,25 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: test
+      - name: Setup core dump collection
         run: |
           set -x
+          mkdir $HOME/cores
           cat /proc/sys/kernel/core_pattern || :
-          sudo sh -c 'echo "core.%e-%i-%t" > /proc/sys/kernel/core_pattern' || :
+          sudo sh -c "echo '$HOME/cores/%e-%i-%t' > /proc/sys/kernel/core_pattern" || :
           cat /proc/sys/kernel/core_pattern || :
           ulimit -c || :
           ulimit -c unlimited
+
+      - name: Generate a core dump
+        run: |
           sleep 60 &
           kill -11 $!
           find . -name 'core.*' || :
+          find ~ -name 'core.*' || :
+
+      - name: Upload core dumps
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: core-dumps
+          path: $HOME/cores
