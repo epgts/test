@@ -1,112 +1,18 @@
 on:
-    push:
+  push:
 
 jobs:
-    test:
-        runs-on: ubuntu-22.04
-        container:
-            image: timescaledev/toolkit-builder-test:debian-11-amd64
-            options: -u postgres
-        env:
-            LOGNAME: postgres
-            REALHOME: /home/postgres
-        steps:
-        #- run: id; pwd; ls -al; env
-        - name: make working and temporary directories world-readable/writable
-          # Now it always fails on cache restore even though earlier it didn't.
-          # WHY
-          # This guy having same problem?  https://github.com/cypress-io/github-action/issues/596
-          # Github Actions bind-mounts some directories into our running
-          # container and sets one of them as the working directory.  That's
-          # where actions/checkout will clone and where we'll do all our work.
-          # That and the $RUNNER_TEMP directory (where actions/cache writes the
-          # cache tar) are owned by a github actions user even within our
-          # container, and not writable by our user, so we need to grant
-          # ourselves write access.  Simple chown won't work, as $RUNNER_TEMP
-          # needs to remain writable by the github actions user as well, as it
-          # writes 'event.json' files there for each step.
-          run: sudo chmod -R a+rwX . "$RUNNER_TEMP"
-        - name: cache
-          uses: actions/cache@v2
-          with:
-              path: $REALHOME/timescaledb-toolkit/target
-              key: foo-11
-              restore-keys: foo-
-        - name: ls after cache restore
-          run: 'cd $REALHOME/timescaledb-toolkit; for i in target/*; do [ -e $i ] || continue; ls -l $i; cat $i; done'
-        - run: 'cd $REALHOME/timescaledb-toolkit; mkdir -p target; cd target; [ -e stamp ] || date > stamp'
-        - run: 'cd $REALHOME/timescaledb-toolkit; mkdir -p target; cd target; [ -e stamp2 ] || date > stamp2'
-        - run: find $RUNNER_TEMP -print0 | xargs -0 ls -dl
-        - name: ls after work
-          run: ls -al
-
-# WITHOUT CONTAINER
-# uid=1001(runner) gid=122(docker) groups=122(docker),4(adm),101(systemd-journal)
-# /home/runner/work/test/test
-# total 8
-# drwxr-xr-x 2 runner docker 4096 Oct 21 19:26 .
-# drwxr-xr-x 3 runner docker 4096 Oct 21 19:26 ..
-# GITHUB_WORKSPACE=/home/runner/work/test/test
-# GITHUB_PATH=/home/runner/work/_temp/_runner_file_commands/add_path_7e74a5b0-646a-4f24-8f5c-4d7609228639
-# HOME=/home/runner
-# RUNNER_TEMP=/home/runner/work/_temp
-# GITHUB_STATE=/home/runner/work/_temp/_runner_file_commands/save_state_7e74a5b0-646a-4f24-8f5c-4d7609228639
-# GITHUB_ENV=/home/runner/work/_temp/_runner_file_commands/set_env_7e74a5b0-646a-4f24-8f5c-4d7609228639
-# RUNNER_USER=runner
-# USER=runner
-# RUNNER_WORKSPACE=/home/runner/work/test
-# PATH=/home/runner/.local/bin:/opt/pipx_bin:/home/runner/.cargo/bin:/home/runner/.config/composer/vendor/bin:/usr/local/.ghcup/bin:/home/runner/.dotnet/tools:/snap/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
-# GITHUB_OUTPUT=/home/runner/work/_temp/_runner_file_commands/set_output_7e74a5b0-646a-4f24-8f5c-4d7609228639
-
-# WITH CONTAINER
-# uid=0(root) gid=0(root) groups=0(root)
-# /__w/test/test
-# total 8
-# drwxr-xr-x 2 1001 122 4096 Oct 21 19:32 .
-# drwxr-xr-x 3 1001 122 4096 Oct 21 19:32 ..
-# GITHUB_STATE=/__w/_temp/_runner_file_commands/save_state_eed722f0-c71b-41c2-aaa9-d8941bb2b0fc
-# GITHUB_ENV=/__w/_temp/_runner_file_commands/set_env_eed722f0-c71b-41c2-aaa9-d8941bb2b0fc
-# HOME=/github/home
-# GITHUB_EVENT_PATH=/github/workflow/event.json
-# RUNNER_TEMP=/__w/_temp
-# GITHUB_REPOSITORY_OWNER=epgts
-# GITHUB_RETENTION_DAYS=90
-# GITHUB_HEAD_REF=
-# GITHUB_GRAPHQL_URL=https://api.github.com/graphql
-# LOGNAME=root
-# GITHUB_API_URL=https://api.github.com
-# RUNNER_OS=Linux
-# GITHUB_WORKFLOW=.github/workflows/test.yml
-# GITHUB_RUN_ID=3299967710
-# GITHUB_BASE_REF=
-# GITHUB_REF_TYPE=branch
-# GITHUB_ACTION_REPOSITORY=
-# PATH=/usr/local/cargo/bin:/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/bin
-# RUNNER_TOOL_CACHE=/__t
-# GITHUB_RUN_NUMBER=6
-# GITHUB_TRIGGERING_ACTOR=epgts
-# GITHUB_ACTION=__run
-# RUNNER_ARCH=X64
-# GITHUB_REPOSITORY=epgts/test
-# GITHUB_REF_NAME=master
-# RUNNER_NAME=Hosted Agent
-# GITHUB_ACTION_REF=
-# GITHUB_ACTIONS=true
-# GITHUB_REF_PROTECTED=false
-# GITHUB_JOB=test
-# GITHUB_WORKSPACE=/__w/test/test
-# GITHUB_SHA=f35f9aa25d1942f321a66dde9c7b90acf607906a
-# GITHUB_RUN_ATTEMPT=1
-# GITHUB_REF=refs/heads/master
-# GITHUB_ACTOR=epgts
-# GITHUB_PATH=/__w/_temp/_runner_file_commands/add_path_eed722f0-c71b-41c2-aaa9-d8941bb2b0fc
-# RUNNER_WORKSPACE=/__w/test
-# GITHUB_EVENT_NAME=push
-# GITHUB_SERVER_URL=https://github.com
-# GITHUB_OUTPUT=/__w/_temp/_runner_file_commands/set_output_eed722f0-c71b-41c2-aaa9-d8941bb2b0fc
-# GITHUB_STEP_SUMMARY=/__w/_temp/_runner_file_commands/step_summary_eed722f0-c71b-41c2-aaa9-d8941bb2b0fc
-
-
-# Local variables:
-# mode: conf
-# End:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: test
+        run: |
+          set -x
+          cat /proc/sys/kernel/core_pattern || :
+          sudo sh -c 'echo "core.%e-%i-%t" > /proc/sys/kernel/core_pattern' || :
+          cat /proc/sys/kernel/core_pattern || :
+          ulimit -c || :
+          ulimit -c unlimited
+          sleep 60 &
+          kill -11 $!
+          find . -name 'core.*' || :
