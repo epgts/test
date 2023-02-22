@@ -9,7 +9,6 @@ jobs:
         run: |
           exec 2>&1
           set -x
-          mkdir $HOME/cores
           cat /proc/sys/kernel/core_pattern || :
           sudo sh -c "echo '$HOME/cores/%e-%i-%t' > /proc/sys/kernel/core_pattern" || :
           cat /proc/sys/kernel/core_pattern || :
